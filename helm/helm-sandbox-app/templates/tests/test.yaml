@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "helm-sandbox-app.fullname" . }}-test"
+  labels:
+    {{- include "helm-sandbox-app.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test-success
+    "helm.sh/hook-delete-policy": before-hook-creation
+spec:
+  containers:
+    - name: {{ .Chart.Name }}
+      image: "{{ .Values.tests.repository }}:{{ .Values.tests.tag | default .Chart.AppVersion }}"
+      imagePullPolicy: {{ .Values.tests.pullPolicy }}
+      env:
+      - name: Uri
+        value: "http://{{ include "helm-sandbox-app.fullname" . }}:{{ .Values.service.port }}"
+  restartPolicy: Never
